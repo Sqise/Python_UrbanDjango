@@ -1,0 +1,16 @@
+﻿{% extends 'fourth_task/menu.html' %}
+
+{% block pagename %}
+Музыкальный список
+{% endblock %}
+
+{% block content %}
+<h1>Музыкальный список</h1>
+<ul>
+    {% for song in games %}
+        <li>{{ song }}
+            <button type="button">Просто кнопка</button>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
