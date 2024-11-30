@@ -1,0 +1,114 @@
+﻿<!-- blog/templates/blog/post_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Posts</title>
+    <style>
+        /* Стили для пагинации */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+        }
+        .pagination li {
+            margin: 0 5px;
+        }
+        .pagination a {
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            color: #333;
+        }
+        .pagination a:hover, .pagination .active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .pagination .disabled {
+            color: #ccc;
+            pointer-events: none;
+            border-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Blog Posts</h1>
+
+    <ul>
+        {% for post in page_obj %}
+            <li>
+                <h2>{{ post.title }}</h2>
+                <p>{{ post.content|truncatewords:20 }}</p>
+                <small>Published on {{ post.created_at }}</small>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Настраиваемый блок пагинации -->
+    <form method="get">
+        <label for="items_per_page">Items per page:</label>
+        <select name="items_per_page" id="items_per_page" onchange="this.form.submit()">
+            <!-- Генерируем варианты выбора -->
+            <option value="5" {% if items_per_page == 5 %}selected{% endif %}>5</option>
+            <option value="10" {% if items_per_page == 10 %}selected{% endif %}>10</option>
+            <option value="20" {% if items_per_page == 20 %}selected{% endif %}>20</option>
+            <option value="50" {% if items_per_page == 50 %}selected{% endif %}>50</option>
+        </select>
+
+        <!-- Удерживаем текущую страницу при изменении количества элементов -->
+        {% if page_obj.has_previous %}
+            <input type="hidden" name="page" value="{{ page_obj.number }}">
+        {% endif %}
+    </form>
+
+    <ul class="pagination">
+        <!-- Кнопка "Первая" -->
+        {% if page_obj.has_previous %}
+            <li><a href="?page=1&items_per_page={{ items_per_page }}">First</a></li>
+        {% else %}
+            <li class="disabled"><span>First</span></li>
+        {% endif %}
+        
+                <!-- Кнопка "Предыдущая" -->
+        {% if page_obj.has_previous %}
+            <li><a href="?page={{ page_obj.previous_page_number }}&items_per_page={{ items_per_page }}">Previous</a></li>
+        {% else %}
+            <li class="disabled"><span>Previous</span></li>
+        {% endif %}
+
+        <!-- Номера страниц -->
+        {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+                <li class="active"><span>{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <!-- Показываем только соседние страницы -->
+                <li><a href="?page={{ num }}&items_per_page={{ items_per_page }}">{{ num }}</a></li>
+            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                <!-- Показываем первую и последнюю страницы -->
+                <li><a href="?page={{ num }}&items_per_page={{ items_per_page }}">{{ num }}</a></li>
+            {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                <!-- Добавляем троеточие для пропущенных номеров -->
+                <li><span>...</span></li>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Кнопка "Следующая" -->
+        {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}&items_per_page={{ items_per_page }}">Next</a></li>
+        {% else %}
+            <li class="disabled"><span>Next</span></li>
+        {% endif %}
+
+        <!-- Кнопка "Последняя" -->
+        {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.paginator.num_pages }}&items_per_page={{ items_per_page }}">Last</a></li>
+        {% else %}
+            <li class="disabled"><span>Last</span></li>
+        {% endif %}
+    </ul>
+</body>
+</html>
